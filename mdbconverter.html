@@ -1,0 +1,171 @@
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- Sample html file that corresponds to the 99-sample.js file              -->
+<!-- This creates and configures the onscreen elements of the node           -->
+
+<!-- If you use this as a template, update the copyright with your own name. -->
+
+<!-- First, the content of the edit dialog is defined.                       -->
+
+<script type="text/x-red" data-template-name="modbus-data-converter">
+   <!-- data-template-name identifies the node type this is for              -->
+
+   <!-- Each of the following divs creates a field in the edit dialog.       -->
+   <!-- Generally, there should be an input for each property of the node.   -->
+   <!-- The for and id attributes identify the corresponding property        -->
+   <!-- (with the 'node-input-' prefix).                                     -->
+   <!-- The available icon classes are defined Font Awesome Icons (FA Icons) -->
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+	<div class="form-row">
+        <label for="node-input-outtype"><i class="fa fa-list"></i> Output Type</label>
+        <select type="text" id="node-input-outtype" style="display: inline-block; width: 250px;">
+            <option value=0 >Bit Array</option>
+			<option value=1 >Bit String</option>
+            <option value=2 >16-Bit Signed Integer</option>
+			<option value=3 >16-Bit Unsigned Integer</option>
+			<option value=4 >32-Bit Signed Integer</option>
+			<option value=5 >32-Bit Unsigned Integer</option>
+			<option value=6 >Float</option>
+			<option value=7 >Ascii</option>
+        </select>
+    </div>
+	<div class="form-row">
+        <label for="node-input-outendian"><i class="fa fa-list"></i> Endianness</label>
+        <select type="text" id="node-input-outendian" style="display: inline-block; width: 250px;">
+            <option value=0 >Non-Swap</option>
+			<option value=1 >Byte-Swap</option>
+			<option value=2 >Word-Swap</option>
+            <option value=3 >Byte-Word-Swap</option>
+        </select>
+    </div>
+	<div class="form-row">
+        <label for="node-input-outlength"><i class="fa fa-list"></i> Length</label>
+        <input type="text" id="node-input-outlength" placeholder="Depand on Output Type(only bit & ASCII data)"/>
+    </div>
+    <!-- By convention, most nodes have a 'name' property. The following div -->
+    <!-- provides the necessary field. Should always be the last option      -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<!-- Next, some simple help text is provided for the node.                   -->
+<script type="text/x-red" data-help-name="modbus-data-converter">
+   <!-- data-help-name identifies the node type this help is for             -->
+   <!-- This content appears in the Info sidebar when a node is selected     -->
+   <!-- The first <p> is used as the pop-up tool tip when hovering over a    -->
+   <!-- node in the palette.                                                 -->
+   <p>Convert From Modbus raw-data to readable data type(string, integer, float)</p>
+   <p>Input of node is a raw-data(maybe array) from Modbus reader node.</p>
+   <p>Output of node is an object called <code>msg</code> containing <code>msg.payload</code> which is readable data from Modbus reader according to your setting.</p>
+   <p><code>Output Type</code> in properties is output data type you want from Modbus reader.</p>
+   <p>Endianness is the sequential order of raw-data from Modbus reader. For example:<br/>
+   <code>Non-Swap</code>: 0x12345678<br/>
+   <code>Byte-Swap</code>: 0x34127856<br/>
+   <code>Word-Swap</code>: 0x56781234<br/>
+   <code>Byte-Word-Swap</code>: 0x78564312<br/>
+   </p>
+   <p>The <code>Length</code> is quantity of output. The default value is 1 if you fill an empty. The output will be array when quantity >= 2.</p>
+   <p>An warn message in debug area will be add when your setting is wrong.</p>
+   
+   <p> Error code:<br/>
+   1: input array size less than length<br/>
+   2: input type unsupported<br/>
+   3: output type unsupported<br/>
+   4: length cant set ZERO<br/>
+   5: length too long<br/>
+   6: length error<br/>
+   7: endianness error<br/>
+   8: output string more than 512<br/>
+   254: memory allocate ERROR<br/>
+   255: invalid device<br/>
+   </p>
+</script>
+
+<!-- Finally, the node type is registered along with all of its properties   -->
+<!-- The example below shows a small subset of the properties that can be set-->
+<script type="text/javascript">
+    RED.nodes.registerType('modbus-data-converter',{
+        category: 'Advantech IIoT',      // the palette category
+        defaults: {             // defines the editable properties of the node
+            name: {value:""},   //  along with default values.
+            topic: {value:""},
+			outtype: {value:"0"},
+			outendian: {value:"0"},
+			outlength: {value:""}
+        },
+        inputs:1,               // set the number of inputs - only 0 or 1
+        outputs:1,              // set the number of outputs - 0 to n
+        // set the icon (held in icons dir below where you save the node)
+        icon: "mbdconverter.png",     // saved in  icons/myicon.png
+		color: "#c0deed",
+		paletteLabel: "Modbus Data Converter",
+        label: function() {     // sets the default label contents
+            return this.name||this.topic||"Modbus Data Converter";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        },
+		oneditprepare: function(){
+			$("#node-input-outtype").change(function(){
+				switch($("#node-input-outtype").val()){
+					case "0":
+					case "1":
+						if($("#node-input-outendian").val()!=0)
+						{
+							$("#node-input-outendian").val(0);
+						}
+					break;
+					case "2":
+					case "3":
+						if($("#node-input-outendian").val() > 1)
+						{
+							$("#node-input-outendian").val(0);
+						}
+					break;
+				}
+			});
+		
+			$("#node-input-outendian").focusin(function () {
+				$("#node-input-outendian option").each(function(){
+					$(this).removeAttr('disabled');
+				});
+			
+				switch($("#node-input-outtype").val()){
+					case "0":
+					case "1":
+						//$("#node-input-outendian option[value="+ 1 +"]").attr('disabled', 'disabled');
+						$("#node-input-outendian option").each(function(){
+							$(this).attr('disabled', 'disabled');
+						});
+					break;
+					
+					case "2":
+					case "3":
+						$("#node-input-outendian option[value="+ 2 +"]").attr('disabled', 'disabled');
+						$("#node-input-outendian option[value="+ 3 +"]").attr('disabled', 'disabled');
+					break;
+				}
+			});
+		}
+    });
+</script>

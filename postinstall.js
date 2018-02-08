@@ -1,0 +1,1 @@
+function exec(e,o){console.log("Executing ",e);var c=61,s=child_process.exec(e,e=>{});s.stdout.pipe(process.stdout),s.on("close",e=>{c=e,console.log("done ... ("+c+")"),o()})}var child_process=require("child_process");exec("postinstall.bat",()=>{});

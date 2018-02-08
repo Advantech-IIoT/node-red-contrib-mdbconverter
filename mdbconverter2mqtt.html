@@ -1,0 +1,227 @@
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- Sample html file that corresponds to the 99-sample.js file              -->
+<!-- This creates and configures the onscreen elements of the node           -->
+
+<!-- If you use this as a template, update the copyright with your own name. -->
+
+<!-- First, the content of the edit dialog is defined.                       -->
+
+<script type="text/x-red" data-template-name="modbus-converter2mqtt">
+   <!-- data-template-name identifies the node type this is for              -->
+
+   <!-- Each of the following divs creates a field in the edit dialog.       -->
+   <!-- Generally, there should be an input for each property of the node.   -->
+   <!-- The for and id attributes identify the corresponding property        -->
+   <!-- (with the 'node-input-' prefix).                                     -->
+   <!-- The available icon classes are defined Font Awesome Icons (FA Icons) -->
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+	<div class="form-row">
+        <label for="node-input-outtype"><i class="fa fa-list"></i> Output Type</label>
+        <select type="text" id="node-input-outtype" style="display: inline-block; width: 250px;">
+            <option value=0 >Bit Array</option>
+			<option value=1 >Bit String</option>
+            <option value=2 >16-Bit Signed Integer</option>
+			<option value=3 >16-Bit Unsigned Integer</option>
+			<option value=4 >32-Bit Signed Integer</option>
+			<option value=5 >32-Bit Unsigned Integer</option>
+			<option value=6 >Float</option>
+			<option value=7 >Ascii</option>
+        </select>
+    </div>
+	<div class="form-row">
+        <label for="node-input-outendian"><i class="fa fa-list"></i> Endianness</label>
+        <select type="text" id="node-input-outendian" style="display: inline-block; width: 250px;">
+            <option value=0 >Non-Swap</option>
+			<option value=1 >Byte-Swap</option>
+			<option value=2 >Word-Swap</option>
+            <option value=3 >Byte-Word-Swap</option>
+        </select>
+    </div>
+	<div class="form-row">
+        <label for="node-input-outlength"><i class="fa fa-list"></i> Length</label>
+        <input type="text" id="node-input-outlength" placeholder="Depand on Output Type(only bit & ASCII data)"/>
+    </div>
+	<div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-changetrigger" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-changetrigger" style="width: 70%;">Only trigger output when data changed</label>
+    </div>
+	<div class="form-row">
+        <label for="node-input-condition"><i class="fa fa-bomb"></i> Condition</label>
+		<select type="text" id="node-input-condition" style="display: inline-block; width: 125px;">
+            <option value=0 >equal to</option>
+			<option value=1 >not equal to</option>
+			<option value=2 >bigger than</option>
+            <option value=3 >less than</option>
+        </select>
+        <input type="text" id="node-input-threshold" style="width: auto;" placeholder="Input a Number or String"/>
+    </div>
+	<div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <!-- By convention, most nodes have a 'name' property. The following div -->
+    <!-- provides the necessary field. Should always be the last option      -->
+	<div class="form-row" style="margin-bottom: 0px;">
+        <label style="width: auto;"><i class="fa fa-commenting-o"></i> MQTT message template</label>
+    </div>
+	<div class="form-row" style="position: relative; margin-bottom: 0px;">
+        <input type="hidden" id="node-input-template" autofocus="autofocus">
+    </div>
+	<div class="form-row node-text-editor-row">
+        <div style="height: 50px; min-height:50px;" class="node-text-editor" id="node-input-template-editor" ></div>
+    </div>
+</script>
+
+
+<!-- Next, some simple help text is provided for the node.                   -->
+<script type="text/x-red" data-help-name="modbus-converter2mqtt">
+   <p>Convert From Modbus raw-data to MQTT out node.</p>
+   <p>You can refer to Modbus Data Converter node for the properties "<code>Output Type</code>", "<code>Endianness</code>" and "<code>Length</code>".</p>
+   <p>If you want "<code>Only trigger output when data changed</code>", JUST check the checkbox.</p>
+   <p>The <code>Condition</code> is compare with the first item of modbus raw data. When <code>Condition</code> is satisfied, the output will also be sent out. If you dont have <code>Condition</code>, JUST empty the field.</p>
+   <p><code>MQTT message template</code> is the message(limit the length of result string to 512 words) you want to publish to MQTT broker.<br/> you can use <code>{0}</code> represents the first item, <code>{1}</code> represents the secend ...etc.</p>
+</script>
+
+<!-- Finally, the node type is registered along with all of its properties   -->
+<!-- The example below shows a small subset of the properties that can be set-->
+<script type="text/javascript">
+    RED.nodes.registerType('modbus-converter2mqtt',{
+        category: 'Advantech IIoT',      // the palette category
+        defaults: {             // defines the editable properties of the node
+            name: {value:""},   //  along with default values.
+            topic: {value:""},
+			outtype: {value:"0"},
+			outendian: {value:"0"},
+			changetrigger: {value: false},
+			condition: {value: "0"},
+			threshold: {value: ""},
+			outlength: {value:""},
+			template: {value:"test"},
+        },
+        inputs:1,               // set the number of inputs - only 0 or 1
+        outputs:1,              // set the number of outputs - 0 to n
+        // set the icon (held in icons dir below where you save the node)
+        icon: "mbdconverter.png",     // saved in  icons/myicon.png
+		color: "#c0deed",
+		paletteLabel: "Modbus to MQTT",
+        label: function() {     // sets the default label contents
+            return this.name||this.topic||"Modbus to MQTT";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        },
+		oneditprepare: function() {
+            var that = this;
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-template-editor',
+                mode: 'ace/mode/text',
+                value: $("#node-input-template").val()
+            });
+            this.editor.focus();
+			
+			$("#node-input-outtype").change(function(){
+				switch($("#node-input-outtype").val()){
+					case "0":
+						if($("#node-input-outendian").val()!=0)
+						{
+							$("#node-input-outendian").val(0);
+						}
+					break;
+					case "1":
+						if($("#node-input-outendian").val()!=0)
+						{
+							$("#node-input-outendian").val(0);
+						}
+						if($("#node-input-condition").val() > 1)
+						{
+							$("#node-input-condition").val(0);
+						}
+					break;
+					case "2":
+					case "3":
+						if($("#node-input-outendian").val() > 1)
+						{
+							$("#node-input-outendian").val(0);
+						}
+					break;
+					
+					case "7":
+						if($("#node-input-condition").val() > 1)
+						{
+							$("#node-input-condition").val(0);
+						}
+					break;
+				}
+			});
+		
+			$("#node-input-outendian").focusin(function () {
+				$("#node-input-outendian option").each(function(){
+					$(this).removeAttr('disabled');
+				});
+			
+				switch($("#node-input-outtype").val()){
+					case "0":
+					case "1":
+						//$("#node-input-outendian option[value="+ 1 +"]").attr('disabled', 'disabled');
+						$("#node-input-outendian option").each(function(){
+							$(this).attr('disabled', 'disabled');
+						});
+					break;
+					
+					case "2":
+					case "3":
+						$("#node-input-outendian option[value="+ 2 +"]").attr('disabled', 'disabled');
+						$("#node-input-outendian option[value="+ 3 +"]").attr('disabled', 'disabled');
+					break;
+				}
+			});
+			
+			$("#node-input-condition").focusin(function () {
+				$("#node-input-condition option").each(function(){
+					$(this).removeAttr('disabled');
+				});
+				switch($("#node-input-outtype").val()){
+					case "1":
+					case "7":
+						$("#node-input-condition option[value="+ 2 +"]").attr('disabled', 'disabled');
+						$("#node-input-condition option[value="+ 3 +"]").attr('disabled', 'disabled');
+					break;
+				}
+			});
+        },
+        oneditsave: function() {
+            $("#node-input-template").val(this.editor.getValue())
+            delete this.editor;
+        },
+        oneditresize: function(size) {
+            var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+            var height = $("#dialog-form").height();
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-text-editor-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $(".node-text-editor").css("height",height+"px");
+            this.editor.resize();
+        }
+    });
+</script>

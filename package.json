@@ -1,0 +1,30 @@
+{
+  "name": "node-red-contrib-mdbconverter",
+  "version": "1.1.15",
+  "description": "Advantech Modbus Converter Nodes",
+  "main": "none",
+  "scripts": {
+	"test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node postinstall.js",
+	"preinstall": "node preinstall.js"
+  },
+  "keywords": [
+    "modbus",
+	"modbus converter",
+  "Advantech",
+  "IIoT"
+  ],
+  "node-red": {
+    "nodes": {
+      "mdbconverter": "mdbconverter.js",
+	  "mdbconverter2mqtt": "mdbconverter2mqtt.js",
+	  "mdbconverter2sqlite": "mdbconverter2sqlite.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Advantech-IIoT/node-red-contrib-atmdbconverter"
+  },
+  "author": "Chic.Lee",
+  "license": "Apache-2.0"
+}
