@@ -16,7 +16,7 @@ npm install node-red-contrib-mdbconverter -g
 ```
 
 ## Description
-You can use [node-red-contrib-modbus](https://github.com/biancode/node-red-contrib-modbus) to get modbus data and make data converter after linking to [node-red-contrib-mdbconverter](./#) nodes.
+You can use [node-red-contrib-modbus](https://github.com/biancode/node-red-contrib-modbus) to get modbus data and make data converter after linking to [node-red-contrib-mdbconverter](https://github.com/Advantech-IIoT/node-red-contrib-mdbconverter) nodes.
 
 ## Example
 You can try demo flow  [(demo.json)](./demo.json) via import function from Node-RED editor.
