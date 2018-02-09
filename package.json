@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-mdbconverter",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Advantech Modbus Converter Nodes",
   "main": "none",
   "scripts": {

@@ -3,7 +3,10 @@ A collection of [Node-RED](http://nodered.org) nodes for ADVANTECH IIoT modbus c
 
 Notice that an Advantech IIoT Platform SDK have to be installed to make this node works correctly.
 Advantech IIoT Platform SDK download link is shown below:
-https://github.com/Advantech-IIoT/Platform-SDK/tree/master/bin
+Windows:
+  https://github.com/Advantech-IIoT/Platform-SDK/tree/master/windows/bin
+Linux:
+  https://github.com/Advantech-IIoT/Platform-SDK/tree/master/linux/bin
 
 ## Installation
 Use npm command to install this package locally in the Node-RED modules directory
