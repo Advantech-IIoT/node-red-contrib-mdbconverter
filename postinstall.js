@@ -1,1 +1,22 @@
-var child_process=require("child_process");function exec(o,c){console.log("Executing ",o);var e=61,s=child_process.exec(o,function(o){});s.stdout.pipe(process.stdout),s.on("close",function(o){e=o,console.log("done ... ("+e+")"),c()})}exec("postinstall.bat",function(){});
+﻿var child_process = require("child_process");
+
+
+function exec(cmd,callback) {
+
+    console.log("Executing " ,cmd);
+    var the_code = 61;
+    var child = child_process.exec(cmd,function(err) {
+    });
+
+    child.stdout.pipe(process.stdout);
+
+    child.on('close', function(code) {
+        the_code = code;
+        console.log("done ... (" + the_code + ")");
+        callback();
+    });
+}
+
+exec("postinstall.bat",function() {
+});
+
